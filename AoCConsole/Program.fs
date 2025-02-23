@@ -2,9 +2,9 @@
 open System.IO
 
 open AoC24Library
-open AoC24Day10
+open AoC24Day11
 let day = 11
-let test = true
+let test = false
 
 let input = getInput day test
 
