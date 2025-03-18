@@ -3,12 +3,20 @@
 open System.Collections.Generic 
 
 type Stone = int64
-type Line = Stone Dictionary
+type Line = Stone array
+type StoneCount = Dictionary<Stone, int64>
 
 
 let parseInputAsLine (input:string array) = 
     let line : Line = input[0].Split(' ') |> Array.map int64
     line
+
+let parseInputAsStoneCount (input:string array) = 
+    let line : Line = input[0].Split(' ') |> Array.map int64
+    let stoneCount = Dictionary<Stone, int64>()
+    for stone in line do
+        stoneCount.Add(stone, 1)
+    stoneCount
 
 let (|IsZero|HasEvenDigits|Other|) (stone:Stone) = 
     match stone with
@@ -40,15 +48,19 @@ let getResultPart1 (input:string array) =
     line.Length
 
 let getResultPart2 (input:string array) =
-    let mutable line = parseInputAsLine input
-    for blinking in [1..25] do
-        let mutable newLine : Line = Array.empty
-        for i in [0..line.Length - 1] do
-            let newStones = getNewStones line[i]
-            newLine <- Array.concat [|newLine;newStones|]
-        line <- newLine
-    line.Length
+    let mutable stoneCount = parseInputAsStoneCount input
+    for blinking in [1..75] do
+        let newStoneCount = Dictionary<Stone, int64>()
+        for existingStone in stoneCount do
+            let newStones = getNewStones existingStone.Key
+            for newStone in newStones do
+                if newStoneCount.ContainsKey(newStone) then
+                    newStoneCount.[newStone] <- newStoneCount[newStone] + existingStone.Value
+                else
+                    newStoneCount.[newStone] <- existingStone.Value
+        stoneCount <- newStoneCount
+    stoneCount.Values |> Seq.sum 
 
 let input = System.IO.File.ReadAllLines(System.IO.Path.Combine(__SOURCE_DIRECTORY__, "Input.txt"))
-let resultPart1 = 1//getResultPart1 input
+let resultPart1 = getResultPart1 input
 let resultPart2 = getResultPart2 input
